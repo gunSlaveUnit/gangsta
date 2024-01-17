@@ -44,6 +44,10 @@ class OpenGLRenderer : public Renderer {
             glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         }
 
+        GLFWwindow* get_window() const {
+            return window;
+        }
+
         void draw_frame() final {
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -66,6 +70,11 @@ enum GameState {
 auto game_state = GameState::initialize;
 OpenGLRenderer renderer;
 
+void process_input(GLFWwindow *window) {
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        game_state = GameState::terminate;
+}
+
 int main() {
     renderer.initialize();
 
@@ -76,6 +85,7 @@ int main() {
                 break;
             case running:
                 renderer.draw_frame();
+                process_input(renderer.get_window());
                 break;
             case pause:
                 break;            
