@@ -33,7 +33,8 @@ class OpenGLRenderer : public Renderer {
         }
 
         void draw_frame() final {
-            
+            glfwSwapBuffers(window);
+            glfwPollEvents();
         }
 
         void terminate() final {
