@@ -44,6 +44,13 @@ class OpenGLRenderer : public Renderer {
             glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         }
 
+        uint_fast32_t make_shader(const char *source, GLenum shader_type) {
+            uint_fast32_t shader = glCreateShader(shader_type);
+            glShaderSource(shader, 1, &source, nullptr);
+            glCompileShader(shader);
+            return shader;
+        }
+
         GLFWwindow* get_window() const {
             return window;
         }
