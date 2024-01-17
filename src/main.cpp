@@ -77,13 +77,6 @@ class OpenGLRenderer : public Renderer {
         }
 
         void draw_frame() final {
-            glUseProgram(
-                make_program({
-                    make_shader("shaders/vertex.glsl", GL_VERTEX_SHADER),
-                    make_shader("shaders/fragment.glsl", GL_FRAGMENT_SHADER)
-                })
-            );
-
             uint_fast32_t vbo;
             glGenBuffers(1, &vbo);
 
@@ -93,6 +86,13 @@ class OpenGLRenderer : public Renderer {
 
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
             glEnableVertexAttribArray(0);
+
+            glUseProgram(
+                make_program({
+                    make_shader("shaders/vertex.glsl", GL_VERTEX_SHADER),
+                    make_shader("shaders/fragment.glsl", GL_FRAGMENT_SHADER)
+                })
+            );
 
             glfwSwapBuffers(window);
             glfwPollEvents();
