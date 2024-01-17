@@ -77,6 +77,9 @@ class OpenGLRenderer : public Renderer {
         }
 
         void draw_frame() final {
+            uint_fast32_t vao;
+            glGenVertexArrays(1, &vao);
+
             uint_fast32_t vbo;
             glGenBuffers(1, &vbo);
 
