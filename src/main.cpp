@@ -25,6 +25,9 @@ class OpenGLRenderer : public Renderer {
             if (window == nullptr)
                 std::cerr << "ERROR: GLFW failed to create a window\n";
             glfwMakeContextCurrent(window);
+
+            if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+                std::cerr << "ERROR: failed to initialize GLAD\n";
         }
 
         void draw_frame() final {
