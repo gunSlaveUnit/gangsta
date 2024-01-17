@@ -51,6 +51,21 @@ class OpenGLRenderer : public Renderer {
             return shader;
         }
 
+        uint_fast32_t make_program(const std::initializer_list<uint_fast32_t> &shaders) {
+            uint_fast32_t program = glCreateProgram();
+
+            for (const auto &shader : shaders) 
+                glAttachShader(program, shader);
+
+            glLinkProgram(program);
+
+            // TODO: should I do that here?
+            for (auto &shader : shaders)
+                glDeleteShader(shader);
+
+            return program;
+        }
+
         GLFWwindow* get_window() const {
             return window;
         }
