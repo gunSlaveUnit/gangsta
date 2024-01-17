@@ -29,6 +29,10 @@ class OpenGLRenderer : public Renderer {
 
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+            #ifdef __APPLE__
+                glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+            #endif
+
             window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
             if (window == nullptr)
                 std::cerr << "ERROR: GLFW failed to create a window\n";
