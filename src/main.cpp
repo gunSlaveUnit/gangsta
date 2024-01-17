@@ -1,3 +1,6 @@
+#include <cstdint>
+#include <iostream>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -17,6 +20,11 @@ class OpenGLRenderer : public Renderer {
     public:
         void initialize() final {
             glfwInit();
+
+            auto window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
+            if (window == nullptr)
+                std::cerr << "ERROR: GLFW failed to create a window\n";
+            glfwMakeContextCurrent(window);
         }
 
         void draw_frame() final {
