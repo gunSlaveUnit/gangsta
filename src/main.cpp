@@ -28,6 +28,8 @@ class OpenGLRenderer : public Renderer {
 
             if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
                 std::cerr << "ERROR: failed to initialize GLAD\n";
+
+            glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         }
 
         void draw_frame() final {
