@@ -87,6 +87,8 @@ class OpenGLRenderer : public Renderer {
             uint_fast32_t vbo;
             glGenBuffers(1, &vbo);
 
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
