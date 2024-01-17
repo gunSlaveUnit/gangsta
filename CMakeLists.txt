@@ -20,7 +20,12 @@ add_executable(${PROJECT_NAME}
 add_subdirectory(${GLFW_DIR})
 add_subdirectory(${GLM_DIR})
 
+find_package(Vulkan REQUIRED)
+
 target_link_libraries(${PROJECT_NAME} glfw)
-target_include_directories(${PROJECT_NAME} PRIVATE ${GLFW_DIR}/include)
+target_link_libraries(${PROJECT_NAME} ${Vulkan_LIBRARIES})
+
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLM_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE ${GLFW_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLAD_DIR}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${Vulkan_INCLUDE_DIRS})
