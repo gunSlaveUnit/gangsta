@@ -1,11 +1,16 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+//TODO: this should be maximum display resolution when the game starts 
+const char *WINDOW_TITLE = "GANGSTA";
+constexpr uint_fast32_t WINDOW_WIDTH = 800;
+constexpr uint_fast32_t WINDOW_HEIGHT = 600;
+
 class Renderer {
     public:
         virtual void initialize() = 0;
         virtual void draw_frame() = 0;
-        virtual void terminate() = 0;    
+        virtual void terminate() = 0;   
 };
 
 class OpenGLRenderer : public Renderer {
