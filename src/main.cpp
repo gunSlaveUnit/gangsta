@@ -71,6 +71,13 @@ class OpenGLRenderer : public Renderer {
         }
 
         void draw_frame() final {
+            glUseProgram(
+                make_program({
+                    make_shader("shaders/vertex.glsl", GL_VERTEX_SHADER),
+                    make_shader("shaders/fragment.glsl", GL_FRAGMENT_SHADER)
+                })
+            );
+
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
