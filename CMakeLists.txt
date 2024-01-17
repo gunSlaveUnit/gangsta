@@ -13,7 +13,7 @@ set(GLM_DIR ${THIRD_PARTY_DIR}/GLM)
 set(GLAD_DIR ${THIRD_PARTY_DIR}/GLAD)
 
 add_executable(${PROJECT_NAME} 
-	main.cpp
+	src/main.cpp
 	${GLAD_DIR}/src/glad.c
 )
 
