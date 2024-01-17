@@ -5,4 +5,6 @@ enum GameState {
     terminate,
 };
 
+auto game_state = GameState::initialize;
+
 int main() {}
