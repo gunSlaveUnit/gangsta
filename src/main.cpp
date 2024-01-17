@@ -1,3 +1,6 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 class Renderer {
     public:
         virtual void initialize() = 0;
