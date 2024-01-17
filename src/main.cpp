@@ -8,6 +8,21 @@ class Renderer {
         virtual void terminate() = 0;    
 };
 
+class OpenGLRenderer : public Renderer {
+    public:
+        void initialize() final {
+            glfwInit();
+        }
+
+        void draw_frame() final {
+            
+        }
+
+        void terminate() final {
+            glfwTerminate();
+        }
+};
+
 enum GameState {
     initialize,
     running,
