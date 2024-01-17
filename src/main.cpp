@@ -63,6 +63,7 @@ int main() {
                 game_state = GameState::running;
                 break;
             case running:
+                renderer.draw_frame();
                 break;
             case pause:
                 break;            
