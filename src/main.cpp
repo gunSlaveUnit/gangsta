@@ -9,6 +9,9 @@ const char *WINDOW_TITLE = "GANGSTA";
 constexpr uint_fast32_t WINDOW_WIDTH = 800;
 constexpr uint_fast32_t WINDOW_HEIGHT = 600;
 
+constexpr uint_fast32_t OPEN_GL_MAJOR_VERSION = 4;
+constexpr uint_fast32_t OPEN_GL_MINOR_VERSION = 5;
+
 class Renderer {
     public:
         virtual void initialize() = 0;
@@ -20,6 +23,9 @@ class OpenGLRenderer : public Renderer {
     public:
         void initialize() final {
             glfwInit();
+
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPEN_GL_MAJOR_VERSION);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPEN_GL_MINOR_VERSION);
 
             window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
             if (window == nullptr)
