@@ -13,7 +13,7 @@ class Renderer {
     public:
         virtual void initialize() = 0;
         virtual void draw_frame() = 0;
-        virtual void terminate() = 0;   
+        virtual void terminate() = 0;
 };
 
 class OpenGLRenderer : public Renderer {
@@ -21,7 +21,7 @@ class OpenGLRenderer : public Renderer {
         void initialize() final {
             glfwInit();
 
-            auto window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
+            window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
             if (window == nullptr)
                 std::cerr << "ERROR: GLFW failed to create a window\n";
             glfwMakeContextCurrent(window);
@@ -39,6 +39,8 @@ class OpenGLRenderer : public Renderer {
         void terminate() final {
             glfwTerminate();
         }
+    private:
+        GLFWwindow *window;
 };
 
 enum GameState {
