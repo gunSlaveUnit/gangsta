@@ -65,4 +65,6 @@ int main() {
                 break;            
         }
     }
+
+    renderer.terminate();
 }
