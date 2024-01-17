@@ -80,6 +80,8 @@ class OpenGLRenderer : public Renderer {
             uint_fast32_t vao;
             glGenVertexArrays(1, &vao);
 
+            glBindVertexArray(vao);
+
             uint_fast32_t vbo;
             glGenBuffers(1, &vbo);
 
