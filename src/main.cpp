@@ -89,6 +89,8 @@ class OpenGLRenderer : public Renderer {
 
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
+            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
