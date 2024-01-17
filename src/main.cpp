@@ -31,8 +31,11 @@ enum GameState {
 };
 
 auto game_state = GameState::initialize;
+OpenGLRenderer renderer;
 
 int main() {
+    renderer.initialize();
+
     while(game_state != GameState::terminate) {
         switch(game_state) {
             case initialize:
