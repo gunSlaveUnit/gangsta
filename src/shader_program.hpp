@@ -18,4 +18,4 @@ namespace gangsta {
     };
 }
 
-#endif //GANGSTA_SHADER_PROGRAM_HPP
+#endif
