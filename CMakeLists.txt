@@ -14,6 +14,10 @@ set(GLAD_DIR ${THIRD_PARTY_DIR}/GLAD)
 
 add_executable(${PROJECT_NAME} 
 	src/main.cpp
+
+	src/shader.hpp
+	src/shader.cpp
+
 	${GLAD_DIR}/src/glad.c
 )
 

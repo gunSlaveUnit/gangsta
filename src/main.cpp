@@ -4,6 +4,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "shader.hpp"
+
 //TODO: this should be maximum display resolution when the game starts 
 const char *WINDOW_TITLE = "GANGSTA";
 constexpr uint_fast32_t WINDOW_WIDTH = 800;
@@ -55,24 +57,13 @@ class OpenGLRenderer : public Renderer {
             glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
         }
 
-        uint_fast32_t make_shader(const char *source, GLenum shader_type) {
-            uint_fast32_t shader = glCreateShader(shader_type);
-            glShaderSource(shader, 1, &source, nullptr);
-            glCompileShader(shader);
-            return shader;
-        }
-
-        uint_fast32_t make_program(const std::initializer_list<uint_fast32_t> &shaders) {
+        uint_fast32_t make_program(const std::initializer_list<gangsta::Shader> &shaders) {
             uint_fast32_t program = glCreateProgram();
 
             for (const auto &shader : shaders) 
-                glAttachShader(program, shader);
+                glAttachShader(program, shader.id);
 
             glLinkProgram(program);
-
-            // TODO: should I do that here?
-            for (auto &shader : shaders)
-                glDeleteShader(shader);
 
             return program;
         }
@@ -108,8 +99,8 @@ class OpenGLRenderer : public Renderer {
 
             glUseProgram(
                 make_program({
-                    make_shader("shaders/vertex.glsl", GL_VERTEX_SHADER),
-                    make_shader("shaders/fragment.glsl", GL_FRAGMENT_SHADER)
+                    std::move(gangsta::Shader(GL_VERTEX_SHADER, "shaders/vertex.glsl")),
+                    std::move(gangsta::Shader(GL_FRAGMENT_SHADER, "shaders/fragment.glsl")),
                 })
             );
 
