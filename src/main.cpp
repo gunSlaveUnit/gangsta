@@ -24,89 +24,75 @@ float vertices[] = {
 unsigned int indices[] = {  // note that we start from 0!
     0, 1, 3,   // first triangle
     1, 2, 3    // second triangle
-};  
+}; 
 
-class Renderer {
-    public:
-        virtual void initialize() = 0;
-        virtual void draw_frame() = 0;
-        virtual void terminate() = 0;
-};
+GLFWwindow *window;
 
-class OpenGLRenderer : public Renderer {
-    public:
-        void initialize() final {
-            glfwInit();
+void initiation () {
+    glfwInit();
 
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPEN_GL_MAJOR_VERSION);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPEN_GL_MINOR_VERSION);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPEN_GL_MAJOR_VERSION);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPEN_GL_MINOR_VERSION);
 
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-            #ifdef __APPLE__
-                glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-            #endif
+    #ifdef __APPLE__
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    #endif
 
-            window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
-            if (window == nullptr)
-                std::cerr << "ERROR: GLFW failed to create a window\n";
-            glfwMakeContextCurrent(window);
+    window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
+    if (window == nullptr)
+        std::cerr << "ERROR: GLFW failed to create a window\n";
+    glfwMakeContextCurrent(window);
 
-            if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
-                std::cerr << "ERROR: failed to initialize GLAD\n";
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+        std::cerr << "ERROR: failed to initialize GLAD\n";
 
-            glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-        }
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+}
 
-        GLFWwindow* get_window() const {
-            return window;
-        }
+void draw_frame() {
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-        void draw_frame() final {
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+    uint_fast32_t vao;
+    glGenVertexArrays(1, &vao);
 
-            uint_fast32_t vao;
-            glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
 
-            glBindVertexArray(vao);
+    uint_fast32_t vbo;
+    glGenBuffers(1, &vbo);
 
-            uint_fast32_t vbo;
-            glGenBuffers(1, &vbo);
+    uint_fast32_t ebo;
+    glGenBuffers(1, &ebo);
 
-            uint_fast32_t ebo;
-            glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
 
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-            glEnableVertexAttribArray(0);
+    gangsta::ShaderProgram shader_program({
+        gangsta::Shader(GL_VERTEX_SHADER, "shaders/vertex.glsl"),
+        gangsta::Shader(GL_FRAGMENT_SHADER, "shaders/fragment.glsl"),
+    });
+    shader_program.use();
 
-            gangsta::ShaderProgram shader_program({
-                gangsta::Shader(GL_VERTEX_SHADER, "shaders/vertex.glsl"),
-                gangsta::Shader(GL_FRAGMENT_SHADER, "shaders/fragment.glsl"),
-            });
-            shader_program.use();
+    glBindVertexArray(vao);
 
-            glBindVertexArray(vao);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+}
 
-            glfwSwapBuffers(window);
-            glfwPollEvents();
-        }
-
-        void terminate() final {
-            glfwTerminate();
-        }
-    private:
-        GLFWwindow *window;
-};
+void shutdown() {
+    glfwTerminate();
+}
 
 enum GameState {
     initialize,
@@ -116,29 +102,28 @@ enum GameState {
 };
 
 auto game_state = GameState::initialize;
-OpenGLRenderer renderer;
 
-void process_input(GLFWwindow *window) {
+void process_input() {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         game_state = GameState::terminate;
 }
 
 int main() {
-    renderer.initialize();
+    initiation();
 
     while(game_state != GameState::terminate) {
         switch(game_state) {
-            case initialize:
+            case GameState::initialize:
                 game_state = GameState::running;
                 break;
-            case running:
-                renderer.draw_frame();
-                process_input(renderer.get_window());
+            case GameState::running:
+                draw_frame();
+                process_input();
                 break;
-            case pause:
+            case GameState::pause:
                 break;            
         }
     }
 
-    renderer.terminate();
+    shutdown();
 }
