@@ -4,9 +4,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "shader.hpp"
-#include "shader_program.hpp"
-
 //TODO: this should be maximum display resolution when the game starts 
 const char *WINDOW_TITLE = "GANGSTA";
 constexpr uint_fast32_t WINDOW_WIDTH = 800;
@@ -27,6 +24,24 @@ unsigned int indices[] = {  // note that we start from 0!
 }; 
 
 GLFWwindow *window;
+
+GLuint shader(GLenum type, const char *src) {
+    auto id = glCreateShader(type);
+    glShaderSource(id, 1, &src, nullptr);
+    glCompileShader(id);
+    return id;
+}
+
+GLuint shader_program(const std::initializer_list<GLuint> &shaders) {
+    auto id = glCreateProgram();
+
+    for(const auto &shader : shaders) 
+        glAttachShader(id, shader);
+
+    glLinkProgram(id);
+
+    return id;
+}
 
 void initiation () {
     glfwInit();
@@ -76,11 +91,11 @@ void draw_frame() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    gangsta::ShaderProgram shader_program({
-        gangsta::Shader(GL_VERTEX_SHADER, "shaders/vertex.glsl"),
-        gangsta::Shader(GL_FRAGMENT_SHADER, "shaders/fragment.glsl"),
+    auto program = shader_program({
+        shader(GL_VERTEX_SHADER, "shaders/vertex.glsl"),
+        shader(GL_FRAGMENT_SHADER, "shaders/fragment.glsl"),
     });
-    shader_program.use();
+    glUseProgram(program);
 
     glBindVertexArray(vao);
 
