@@ -15,10 +15,10 @@ constexpr uint_fast32_t OPEN_GL_MAJOR_VERSION = 4;
 constexpr uint_fast32_t OPEN_GL_MINOR_VERSION = 5;
 
 float vertices[] = {
-     0.5f,  0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f,
-    -0.5f,  0.5f, 0.0f, 
+     0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
+     0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+    -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
 };
 unsigned int indices[] = {
     0, 1, 3,
