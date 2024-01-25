@@ -105,8 +105,8 @@ void draw_frame() {
     glEnableVertexAttribArray(0);
 
     auto program = shader_program({
-        shader(GL_VERTEX_SHADER, "shaders/vertex.glsl"),
-        shader(GL_FRAGMENT_SHADER, "shaders/fragment.glsl"),
+        shader(GL_VERTEX_SHADER, "../shaders/vertex.glsl"),
+        shader(GL_FRAGMENT_SHADER, "../shaders/fragment.glsl"),
     });
     glUseProgram(program);
 
