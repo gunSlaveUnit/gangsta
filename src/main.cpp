@@ -1,5 +1,7 @@
 #include <cstdint>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -13,109 +15,118 @@ constexpr uint_fast32_t OPEN_GL_MAJOR_VERSION = 4;
 constexpr uint_fast32_t OPEN_GL_MINOR_VERSION = 5;
 
 float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f,
-};  
-
-class Renderer {
-    public:
-        virtual void initialize() = 0;
-        virtual void draw_frame() = 0;
-        virtual void terminate() = 0;
+     0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
+     0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+    -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
 };
+unsigned int indices[] = {
+    0, 1, 3,
+    1, 2, 3,
+}; 
 
-class OpenGLRenderer : public Renderer {
-    public:
-        void initialize() final {
-            glfwInit();
+GLFWwindow *window;
 
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPEN_GL_MAJOR_VERSION);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPEN_GL_MINOR_VERSION);
+GLuint shader(GLenum type, const char *src) {
+    std::ifstream file(src);
 
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    std::stringstream content_stream;
+    content_stream << file.rdbuf();
 
-            #ifdef __APPLE__
-                glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-            #endif
+    file.close();
 
-            window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
-            if (window == nullptr)
-                std::cerr << "ERROR: GLFW failed to create a window\n";
-            glfwMakeContextCurrent(window);
+    auto content = content_stream.str();
+    auto code = content.c_str();
 
-            if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
-                std::cerr << "ERROR: failed to initialize GLAD\n";
+    auto id = glCreateShader(type);
+    glShaderSource(id, 1, &code, nullptr);
+    glCompileShader(id);
 
-            glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-        }
+    return id;
+}
 
-        uint_fast32_t make_shader(const char *source, GLenum shader_type) {
-            uint_fast32_t shader = glCreateShader(shader_type);
-            glShaderSource(shader, 1, &source, nullptr);
-            glCompileShader(shader);
-            return shader;
-        }
+GLuint shader_program(const std::initializer_list<GLuint> &shaders) {
+    auto id = glCreateProgram();
 
-        uint_fast32_t make_program(const std::initializer_list<uint_fast32_t> &shaders) {
-            uint_fast32_t program = glCreateProgram();
+    for(const auto &shader : shaders) 
+        glAttachShader(id, shader);
 
-            for (const auto &shader : shaders) 
-                glAttachShader(program, shader);
+    glLinkProgram(id);
 
-            glLinkProgram(program);
+    return id;
+}
 
-            // TODO: should I do that here?
-            for (auto &shader : shaders)
-                glDeleteShader(shader);
+void initiation () {
+    glfwInit();
 
-            return program;
-        }
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPEN_GL_MAJOR_VERSION);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, OPEN_GL_MINOR_VERSION);
 
-        GLFWwindow* get_window() const {
-            return window;
-        }
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        void draw_frame() final {
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+    #ifdef __APPLE__
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    #endif
 
-            uint_fast32_t vao;
-            glGenVertexArrays(1, &vao);
+    window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
+    if (window == nullptr)
+        std::cerr << "ERROR: GLFW failed to create a window\n";
+    glfwMakeContextCurrent(window);
 
-            glBindVertexArray(vao);
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+        std::cerr << "ERROR: failed to initialize GLAD\n";
 
-            uint_fast32_t vbo;
-            glGenBuffers(1, &vbo);
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+}
 
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+void draw_frame() {
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-            glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    uint_fast32_t vao;
+    glGenVertexArrays(1, &vao);
 
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-            glEnableVertexAttribArray(0);
+    glBindVertexArray(vao);
 
-            glUseProgram(
-                make_program({
-                    make_shader("shaders/vertex.glsl", GL_VERTEX_SHADER),
-                    make_shader("shaders/fragment.glsl", GL_FRAGMENT_SHADER)
-                })
-            );
+    uint_fast32_t vbo;
+    glGenBuffers(1, &vbo);
 
-            glBindVertexArray(vao);
+    uint_fast32_t ebo;
+    glGenBuffers(1, &ebo);
 
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-            glfwSwapBuffers(window);
-            glfwPollEvents();
-        }
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-        void terminate() final {
-            glfwTerminate();
-        }
-    private:
-        GLFWwindow *window;
-};
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    auto program = shader_program({
+        shader(GL_VERTEX_SHADER, "../shaders/vertex.glsl"),
+        shader(GL_FRAGMENT_SHADER, "../shaders/fragment.glsl"),
+    });
+    glUseProgram(program);
+
+    auto offset_location = glGetUniformLocation(program, "offset"); 
+    glUniform3f(offset_location, -0.1f, 0.1f, 0.3f);
+
+    glBindVertexArray(vao);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+}
+
+void shutdown() {
+    glfwTerminate();
+}
 
 enum GameState {
     initialize,
@@ -125,29 +136,28 @@ enum GameState {
 };
 
 auto game_state = GameState::initialize;
-OpenGLRenderer renderer;
 
-void process_input(GLFWwindow *window) {
+void process_input() {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         game_state = GameState::terminate;
 }
 
 int main() {
-    renderer.initialize();
+    initiation();
 
     while(game_state != GameState::terminate) {
         switch(game_state) {
-            case initialize:
+            case GameState::initialize:
                 game_state = GameState::running;
                 break;
-            case running:
-                renderer.draw_frame();
-                process_input(renderer.get_window());
+            case GameState::running:
+                draw_frame();
+                process_input();
                 break;
-            case pause:
+            case GameState::pause:
                 break;            
         }
     }
 
-    renderer.terminate();
+    shutdown();
 }
