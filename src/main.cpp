@@ -113,6 +113,9 @@ void draw_frame() {
     });
     glUseProgram(program);
 
+    auto offset_location = glGetUniformLocation(program, "offset"); 
+    glUniform3f(offset_location, -0.1f, 0.1f, 0.3f);
+
     glBindVertexArray(vao);
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
