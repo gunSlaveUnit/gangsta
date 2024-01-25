@@ -1,7 +1,8 @@
 #version 450 core
 
-out vec4 color;
+in vec3 pixel_color;
+out vec4 final_color;
 
 void main() {
-	color = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+	final_color = vec4(pixel_color, 1.0f);
 }
