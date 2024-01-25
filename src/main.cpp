@@ -1,5 +1,7 @@
 #include <cstdint>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -26,9 +28,20 @@ unsigned int indices[] = {  // note that we start from 0!
 GLFWwindow *window;
 
 GLuint shader(GLenum type, const char *src) {
+    std::ifstream file(src);
+
+    std::stringstream content_stream;
+    content_stream << file.rdbuf();
+
+    file.close();
+
+    auto content = content_stream.str();
+    auto code = content.c_str();
+
     auto id = glCreateShader(type);
-    glShaderSource(id, 1, &src, nullptr);
+    glShaderSource(id, 1, &code, nullptr);
     glCompileShader(id);
+
     return id;
 }
 
