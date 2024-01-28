@@ -147,7 +147,7 @@ void draw_frame() {
     auto offset_location = glGetUniformLocation(program, "offset"); 
     glUniform3f(offset_location, -0.1f, 0.1f, 0.3f);
 
-    auto model = glm::mat4(1.0f);
+    auto model = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0));
     auto model_location = glGetUniformLocation(program, "model"); 
     glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model));
 
@@ -162,7 +162,7 @@ void draw_frame() {
     glBindVertexArray(vao);
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    
+
     glfwSwapBuffers(window);
     glfwPollEvents();
 }
