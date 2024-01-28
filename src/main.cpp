@@ -117,6 +117,8 @@ void initiation () {
         std::cerr << "ERROR: failed to initialize GLAD\n";
 
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    glEnable(GL_DEPTH_TEST);
 }
 
 void draw_frame() {
