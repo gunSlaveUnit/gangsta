@@ -118,7 +118,8 @@ void draw_frame() {
     glUniform3f(offset_location, -0.1f, 0.1f, 0.3f);
 
     auto model = glm::mat4(1.0f);
-    auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f)); 
+    auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+    auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
     glBindVertexArray(vao);
 
