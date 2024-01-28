@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 
+#include <GLM/glm.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -115,6 +116,8 @@ void draw_frame() {
 
     auto offset_location = glGetUniformLocation(program, "offset"); 
     glUniform3f(offset_location, -0.1f, 0.1f, 0.3f);
+
+    auto model = glm::mat4(1.0f);
 
     glBindVertexArray(vao);
 
