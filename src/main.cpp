@@ -3,8 +3,11 @@
 #include <iostream>
 #include <sstream>
 
+#include <GLM/glm.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <GLM/gtc/type_ptr.hpp>
+#include <GLM/gtc/matrix_transform.hpp>
 
 //TODO: this should be maximum display resolution when the game starts 
 const char *WINDOW_TITLE = "GANGSTA";
@@ -15,15 +18,48 @@ constexpr uint_fast32_t OPEN_GL_MAJOR_VERSION = 4;
 constexpr uint_fast32_t OPEN_GL_MINOR_VERSION = 5;
 
 float vertices[] = {
-     0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 0.0f,
-     0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-    -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
 };
-unsigned int indices[] = {
-    0, 1, 3,
-    1, 2, 3,
-}; 
 
 GLFWwindow *window;
 
@@ -77,11 +113,13 @@ void initiation () {
         std::cerr << "ERROR: failed to initialize GLAD\n";
 
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    glEnable(GL_DEPTH_TEST);
 }
 
 void draw_frame() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     uint_fast32_t vao;
     glGenVertexArrays(1, &vao);
@@ -91,15 +129,8 @@ void draw_frame() {
     uint_fast32_t vbo;
     glGenBuffers(1, &vbo);
 
-    uint_fast32_t ebo;
-    glGenBuffers(1, &ebo);
-
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -116,9 +147,21 @@ void draw_frame() {
     auto offset_location = glGetUniformLocation(program, "offset"); 
     glUniform3f(offset_location, -0.1f, 0.1f, 0.3f);
 
+    auto model = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0));
+    auto model_location = glGetUniformLocation(program, "model"); 
+    glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model));
+
+    auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+    auto view_location = glGetUniformLocation(program, "view"); 
+    glUniformMatrix4fv(view_location, 1, GL_FALSE, glm::value_ptr(view));
+
+    auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    auto projection_location = glGetUniformLocation(program, "projection"); 
+    glUniformMatrix4fv(projection_location, 1, GL_FALSE, glm::value_ptr(projection));
+
     glBindVertexArray(vao);
 
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glfwSwapBuffers(window);
     glfwPollEvents();
