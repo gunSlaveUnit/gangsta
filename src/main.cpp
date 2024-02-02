@@ -170,9 +170,6 @@ void draw_frame() {
     });
     glUseProgram(program);
 
-    auto offset_location = glGetUniformLocation(program, "offset"); 
-    glUniform3f(offset_location, -0.1f, 0.1f, 0.3f);
-
     auto mvp_location = glGetUniformLocation(program, "MVP"); 
     glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(MVP));
 
