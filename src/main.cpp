@@ -97,7 +97,7 @@ GLuint shader_program(const std::initializer_list<GLuint> &shaders) {
     return id;
 }
 
-void initiation () {
+void initiation() {
     glfwInit();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPEN_GL_MAJOR_VERSION);
