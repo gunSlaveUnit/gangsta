@@ -87,6 +87,7 @@ struct Camera {
 };
 
 GLFWwindow *window;
+Camera camera;
 
 GLuint shader(GLenum type, const char *src) {
     std::ifstream file(src);
