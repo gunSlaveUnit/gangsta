@@ -73,6 +73,8 @@ struct Camera {
         direction = glm::normalize(position - target);
         right = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), direction));
         up = glm::cross(direction, right);
+
+        view = glm::lookAt(position, position + direction, up);
     }
 
     glm::vec3 position;
@@ -80,6 +82,8 @@ struct Camera {
     glm::vec3 direction;
     glm::vec3 right;
     glm::vec3 up;
+
+    glm::mat4 view;
 };
 
 GLFWwindow *window;
