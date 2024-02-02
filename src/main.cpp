@@ -61,6 +61,11 @@ float vertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
 };
 
+const auto model = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0));
+const auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+const auto MVP = projection * view * model;
+
 GLFWwindow *window;
 
 GLuint shader(GLenum type, const char *src) {
@@ -147,17 +152,8 @@ void draw_frame() {
     auto offset_location = glGetUniformLocation(program, "offset"); 
     glUniform3f(offset_location, -0.1f, 0.1f, 0.3f);
 
-    auto model = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0));
-    auto model_location = glGetUniformLocation(program, "model"); 
-    glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model));
-
-    auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-    auto view_location = glGetUniformLocation(program, "view"); 
-    glUniformMatrix4fv(view_location, 1, GL_FALSE, glm::value_ptr(view));
-
-    auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-    auto projection_location = glGetUniformLocation(program, "projection"); 
-    glUniformMatrix4fv(projection_location, 1, GL_FALSE, glm::value_ptr(projection));
+    auto mvp_location = glGetUniformLocation(program, "MVP"); 
+    glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(MVP));
 
     glBindVertexArray(vao);
 
