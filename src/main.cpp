@@ -71,11 +71,13 @@ struct Camera {
         position = glm::vec3(0.0, 0.0, 3.0);
         target = glm::vec3(0.0, 0.0, 0.0);
         direction = glm::normalize(position - target);
+        right = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), cameraDirection));
     }
 
     glm::vec3 position;
     glm::vec3 target;
     glm::vec3 direction;
+    glm::vec3 right;
 };
 
 GLFWwindow *window;
