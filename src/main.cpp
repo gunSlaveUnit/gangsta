@@ -69,9 +69,11 @@ const auto MVP = projection * view * model;
 struct Camera {
     Camera() {
         position = glm::vec3(0.0, 0.0, 3.0);
+        target = glm::vec3(0.0, 0.0, 0.0);
     }
 
     glm::vec3 position;
+    glm::vec3 target;
 };
 
 GLFWwindow *window;
