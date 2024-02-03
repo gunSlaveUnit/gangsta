@@ -79,6 +79,8 @@ Camera camera;
 uint_fast32_t vao;
 uint_fast32_t vbo;
 
+uint_fast32_t program;
+
 double delta; 
 double last_time;
 
@@ -159,6 +161,11 @@ void initiation() {
     glEnable(GL_DEPTH_TEST);
 
     init_buffers();
+
+    program = shader_program({
+        shader(GL_VERTEX_SHADER, "../shaders/vertex.glsl"),
+        shader(GL_FRAGMENT_SHADER, "../shaders/fragment.glsl"),
+    });
 }
 
 void draw_frame() {
@@ -169,10 +176,6 @@ void draw_frame() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    auto program = shader_program({
-        shader(GL_VERTEX_SHADER, "../shaders/vertex.glsl"),
-        shader(GL_FRAGMENT_SHADER, "../shaders/fragment.glsl"),
-    });
     glUseProgram(program);
 
     const auto model = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0));
