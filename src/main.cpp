@@ -198,6 +198,8 @@ void initiation() {
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
         std::cerr << "ERROR: failed to initialize GLAD\n";
 
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     glEnable(GL_DEPTH_TEST);
