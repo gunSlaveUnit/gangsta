@@ -62,9 +62,8 @@ float vertices[] = {
 };
 
 const auto model = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0));
-const auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
 const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-const auto MVP = projection * view * model;
+glm::mat4 MVP;
 
 struct Camera {
     Camera() {
@@ -141,6 +140,8 @@ void initiation() {
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     glEnable(GL_DEPTH_TEST);
+
+    MVP = projection * camera.view * model;
 }
 
 void draw_frame() {
