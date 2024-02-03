@@ -108,7 +108,7 @@ GLuint shader_program(const std::initializer_list<GLuint> &shaders) {
     return id;
 }
 
-void initiation() {
+void init_glfw() {
     glfwInit();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPEN_GL_MAJOR_VERSION);
@@ -119,11 +119,18 @@ void initiation() {
     #ifdef __APPLE__
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     #endif
+}
 
+void init_window() {
     window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
     if (window == nullptr)
         std::cerr << "ERROR: GLFW failed to create a window\n";
     glfwMakeContextCurrent(window);
+}
+
+void initiation() {
+    init_glfw();
+    init_window();
 
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
         std::cerr << "ERROR: failed to initialize GLAD\n";
