@@ -71,7 +71,7 @@ struct Camera {
     glm::vec3 position;
     glm::vec3 front;
     glm::vec3 up;
-};
+} camera;
 
 struct Mouse {
     Mouse() {
@@ -82,15 +82,41 @@ struct Mouse {
         position[1] = WINDOW_HEIGHT / 2;
     }
 
+    void process_input(GLFWwindow* window, double x, double y) {
+        auto x_offset = x - position[0];
+        auto y_offset = position[1] - y;
+        
+        position[0] = x;
+        position[1] = y;
+
+        double sensitivity = 0.1;
+        x_offset *= sensitivity;
+        y_offset *= sensitivity;
+
+        yaw += x_offset;
+        pitch += y_offset;
+
+        if (pitch > 89.0)
+            pitch = 89.0;
+        if (pitch < -89.0)
+            pitch = -89.0;
+
+        glm::vec3 front(
+            cos(glm::radians(yaw)) * cos(glm::radians(pitch)),
+            sin(glm::radians(pitch)),
+            sin(glm::radians(yaw)) * cos(glm::radians(pitch))
+        );
+
+        camera.front = glm::normalize(front);
+    }
+
     double yaw;
     double pitch;
 
     double position[2];
-}
+} mouse;
 
 GLFWwindow *window;
-Camera camera;
-Mouse mouse;
 
 uint_fast32_t vao;
 uint_fast32_t vbo;
