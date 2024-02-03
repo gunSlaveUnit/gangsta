@@ -84,6 +84,9 @@ struct Camera {
 GLFWwindow *window;
 Camera camera;
 
+double delta; 
+double last_time;
+
 GLuint shader(GLenum type, const char *src) {
     std::ifstream file(src);
 
@@ -141,6 +144,10 @@ void initiation() {
 }
 
 void draw_frame() {
+    auto current_time = glfwGetTime();
+    delta = current_time - last_time;
+    last_time = current_time;
+
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
