@@ -61,24 +61,16 @@ float vertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
 };
 
-const auto model = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0));
-const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-glm::mat4 MVP;
-
 struct Camera {
     Camera() {
         position = glm::vec3(0.0f, 0.0f,  3.0f);
         front = glm::vec3(0.0f, 0.0f, -1.0f);
         up = glm::vec3(0.0f, 1.0f,  0.0f);
-
-        view = glm::lookAt(position, position + front, up);
     }
 
     glm::vec3 position;
     glm::vec3 front;
     glm::vec3 up;
-
-    glm::mat4 view;
 };
 
 GLFWwindow *window;
@@ -139,8 +131,6 @@ void initiation() {
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     glEnable(GL_DEPTH_TEST);
-
-    MVP = projection * camera.view * model;
 }
 
 void draw_frame() {
@@ -174,8 +164,21 @@ void draw_frame() {
     });
     glUseProgram(program);
 
-    auto mvp_location = glGetUniformLocation(program, "MVP"); 
-    glUniformMatrix4fv(mvp_location, 1, GL_FALSE, glm::value_ptr(MVP));
+    const auto model = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0));
+    auto model_location = glGetUniformLocation(program, "model"); 
+    glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model));
+
+    auto view = glm::lookAt(
+        camera.position, 
+        camera.position + camera.front, 
+        camera.up
+    );
+    auto view_location = glGetUniformLocation(program, "view"); 
+    glUniformMatrix4fv(view_location, 1, GL_FALSE, glm::value_ptr(view));
+
+    const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    auto projection_location = glGetUniformLocation(program, "projection"); 
+    glUniformMatrix4fv(projection_location, 1, GL_FALSE, glm::value_ptr(projection));
 
     glBindVertexArray(vao);
 
