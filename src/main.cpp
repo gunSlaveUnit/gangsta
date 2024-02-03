@@ -201,6 +201,18 @@ auto game_state = GameState::initialize;
 void process_input() {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         game_state = GameState::terminate;
+
+    constexpr auto BASE_CAMERA_SPEED = 0.05;
+    auto camera_speed = static_cast<float>(BASE_CAMERA_SPEED * delta);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) 
+        camera.position += camera_speed * camera.front;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.position -= camera_speed * camera.front;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.position -= glm::normalize(glm::cross(camera.front, camera.up)) * camera_speed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.position += glm::normalize(glm::cross(camera.front, camera.up)) * camera_speed;
 }
 
 int main() {
