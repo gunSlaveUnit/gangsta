@@ -61,7 +61,42 @@ float vertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
 };
 
+struct Camera {
+    Camera() {
+        position = glm::vec3(0.0f, 0.0f,  3.0f);
+        front = glm::vec3(0.0f, 0.0f, -1.0f);
+        up = glm::vec3(0.0f, 1.0f,  0.0f);
+    }
+
+    glm::vec3 position;
+    glm::vec3 front;
+    glm::vec3 up;
+} camera;
+
+struct Mouse {
+    Mouse() {
+        yaw = -90.0;
+        pitch = 0.0;
+
+        position[0] = WINDOW_WIDTH / 2;
+        position[1] = WINDOW_HEIGHT / 2;
+    }
+
+    double yaw;
+    double pitch;
+
+    double position[2];
+} mouse;
+
 GLFWwindow *window;
+
+uint_fast32_t vao;
+uint_fast32_t vbo;
+
+uint_fast32_t program;
+
+double delta; 
+double last_time;
 
 GLuint shader(GLenum type, const char *src) {
     std::ifstream file(src);
@@ -92,7 +127,36 @@ GLuint shader_program(const std::initializer_list<GLuint> &shaders) {
     return id;
 }
 
-void initiation () {
+void process_mouse_input(GLFWwindow* window, double x, double y) {
+    auto x_offset = x - mouse.position[0];
+    auto y_offset = mouse.position[1] - y;
+    
+    mouse.position[0] = x;
+    mouse.position[1] = y;
+
+    double sensitivity = 0.1;
+    x_offset *= sensitivity;
+    y_offset *= sensitivity;
+
+    mouse.yaw += x_offset;
+    mouse.pitch += y_offset;
+
+    if (mouse.pitch > 89.0)
+        mouse.pitch = 89.0;
+    if (mouse.pitch < -89.0)
+        mouse.pitch = -89.0;
+
+    glm::vec3 front(
+        cos(glm::radians(mouse.yaw)) * cos(glm::radians(mouse.pitch)),
+        sin(glm::radians(mouse.pitch)),
+        sin(glm::radians(mouse.yaw)) * cos(glm::radians(mouse.pitch))
+    );
+
+    camera.front = glm::normalize(front);
+}
+
+
+void init_glfw() {
     glfwInit();
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, OPEN_GL_MAJOR_VERSION);
@@ -103,31 +167,20 @@ void initiation () {
     #ifdef __APPLE__
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     #endif
+}
 
+void init_window() {
     window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
     if (window == nullptr)
         std::cerr << "ERROR: GLFW failed to create a window\n";
     glfwMakeContextCurrent(window);
-
-    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
-        std::cerr << "ERROR: failed to initialize GLAD\n";
-
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-    glEnable(GL_DEPTH_TEST);
 }
 
-void draw_frame() {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    uint_fast32_t vao;
+void init_buffers() {
     glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
 
     glBindVertexArray(vao);
-
-    uint_fast32_t vbo;
-    glGenBuffers(1, &vbo);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -137,29 +190,56 @@ void draw_frame() {
 
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
     glEnableVertexAttribArray(1);
+}
 
-    auto program = shader_program({
+void initiation() {
+    init_glfw();
+    init_window();
+
+    if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+        std::cerr << "ERROR: failed to initialize GLAD\n";
+
+    glfwSetCursorPosCallback(window, process_mouse_input);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    glEnable(GL_DEPTH_TEST);
+
+    init_buffers();
+
+    program = shader_program({
         shader(GL_VERTEX_SHADER, "../shaders/vertex.glsl"),
         shader(GL_FRAGMENT_SHADER, "../shaders/fragment.glsl"),
     });
+}
+
+void draw_frame() {
+    auto current_time = glfwGetTime();
+    delta = current_time - last_time;
+    last_time = current_time;
+
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     glUseProgram(program);
 
-    auto offset_location = glGetUniformLocation(program, "offset"); 
-    glUniform3f(offset_location, -0.1f, 0.1f, 0.3f);
-
-    auto model = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0));
+    const auto model = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0f, 1.0f, 1.0));
     auto model_location = glGetUniformLocation(program, "model"); 
     glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model));
 
-    auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+    auto view = glm::lookAt(
+        camera.position, 
+        camera.position + camera.front, 
+        camera.up
+    );
     auto view_location = glGetUniformLocation(program, "view"); 
     glUniformMatrix4fv(view_location, 1, GL_FALSE, glm::value_ptr(view));
 
-    auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
     auto projection_location = glGetUniformLocation(program, "projection"); 
     glUniformMatrix4fv(projection_location, 1, GL_FALSE, glm::value_ptr(projection));
-
-    glBindVertexArray(vao);
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -183,6 +263,18 @@ auto game_state = GameState::initialize;
 void process_input() {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         game_state = GameState::terminate;
+
+    constexpr auto BASE_CAMERA_MOVEMENT_SPEED = 1.0;
+    auto camera_movement_speed = static_cast<float>(BASE_CAMERA_MOVEMENT_SPEED * delta);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) 
+        camera.position += camera_movement_speed * camera.front;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.position -= camera_movement_speed * camera.front;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.position -= glm::normalize(glm::cross(camera.front, camera.up)) * camera_movement_speed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.position += glm::normalize(glm::cross(camera.front, camera.up)) * camera_movement_speed;
 }
 
 int main() {
