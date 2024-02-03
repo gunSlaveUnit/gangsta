@@ -67,19 +67,15 @@ glm::mat4 MVP;
 
 struct Camera {
     Camera() {
-        position = glm::vec3(0.0, 0.0, 3.0);
-        target = glm::vec3(0.0, 0.0, 0.0);
-        direction = glm::normalize(position - target);
-        right = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), direction));
-        up = glm::cross(direction, right);
+        position = glm::vec3(0.0f, 0.0f,  3.0f);
+        front = glm::vec3(0.0f, 0.0f, -1.0f);
+        up = glm::vec3(0.0f, 1.0f,  0.0f);
 
-        view = glm::lookAt(position, position + direction, up);
+        view = glm::lookAt(position, position + front, up);
     }
 
     glm::vec3 position;
-    glm::vec3 target;
-    glm::vec3 direction;
-    glm::vec3 right;
+    glm::vec3 front;
     glm::vec3 up;
 
     glm::mat4 view;
