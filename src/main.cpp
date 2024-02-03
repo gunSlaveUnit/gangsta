@@ -205,8 +205,8 @@ void process_input() {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         game_state = GameState::terminate;
 
-    constexpr auto BASE_CAMERA_MOVEMENT_SPEED = 0.05;
-    auto camera_movement_speed = static_cast<float>(BASE_CAMERA_SPEED * delta);
+    constexpr auto BASE_CAMERA_MOVEMENT_SPEED = 1.0;
+    auto camera_movement_speed = static_cast<float>(BASE_CAMERA_MOVEMENT_SPEED * delta);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) 
         camera.position += camera_movement_speed * camera.front;
