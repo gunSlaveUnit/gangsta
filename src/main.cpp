@@ -82,34 +82,6 @@ struct Mouse {
         position[1] = WINDOW_HEIGHT / 2;
     }
 
-    void process_input(GLFWwindow* window, double x, double y) {
-        auto x_offset = x - position[0];
-        auto y_offset = position[1] - y;
-        
-        position[0] = x;
-        position[1] = y;
-
-        double sensitivity = 0.1;
-        x_offset *= sensitivity;
-        y_offset *= sensitivity;
-
-        yaw += x_offset;
-        pitch += y_offset;
-
-        if (pitch > 89.0)
-            pitch = 89.0;
-        if (pitch < -89.0)
-            pitch = -89.0;
-
-        glm::vec3 front(
-            cos(glm::radians(yaw)) * cos(glm::radians(pitch)),
-            sin(glm::radians(pitch)),
-            sin(glm::radians(yaw)) * cos(glm::radians(pitch))
-        );
-
-        camera.front = glm::normalize(front);
-    }
-
     double yaw;
     double pitch;
 
@@ -154,6 +126,35 @@ GLuint shader_program(const std::initializer_list<GLuint> &shaders) {
 
     return id;
 }
+
+void process_mouse_input(GLFWwindow* window, double x, double y) {
+    auto x_offset = x - mouse.position[0];
+    auto y_offset = mouse.position[1] - y;
+    
+    mouse.position[0] = x;
+    mouse.position[1] = y;
+
+    double sensitivity = 0.1;
+    x_offset *= sensitivity;
+    y_offset *= sensitivity;
+
+    mouse.yaw += x_offset;
+    mouse.pitch += y_offset;
+
+    if (mouse.pitch > 89.0)
+        mouse.pitch = 89.0;
+    if (mouse.pitch < -89.0)
+        mouse.pitch = -89.0;
+
+    glm::vec3 front(
+        cos(glm::radians(yaw)) * cos(glm::radians(pitch)),
+        sin(glm::radians(pitch)),
+        sin(glm::radians(yaw)) * cos(glm::radians(pitch))
+    );
+
+    camera.front = glm::normalize(front);
+}
+
 
 void init_glfw() {
     glfwInit();
