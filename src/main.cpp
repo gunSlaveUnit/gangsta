@@ -76,6 +76,9 @@ struct Camera {
 GLFWwindow *window;
 Camera camera;
 
+uint_fast32_t vao;
+uint_fast32_t vbo;
+
 double delta; 
 double last_time;
 
@@ -128,6 +131,22 @@ void init_window() {
     glfwMakeContextCurrent(window);
 }
 
+void init_buffers() {
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+    glEnableVertexAttribArray(1);
+}
+
 void initiation() {
     init_glfw();
     init_window();
@@ -138,6 +157,8 @@ void initiation() {
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     glEnable(GL_DEPTH_TEST);
+
+    init_buffers();
 }
 
 void draw_frame() {
@@ -147,23 +168,6 @@ void draw_frame() {
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    uint_fast32_t vao;
-    glGenVertexArrays(1, &vao);
-
-    glBindVertexArray(vao);
-
-    uint_fast32_t vbo;
-    glGenBuffers(1, &vbo);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
-    glEnableVertexAttribArray(1);
 
     auto program = shader_program({
         shader(GL_VERTEX_SHADER, "../shaders/vertex.glsl"),
@@ -186,8 +190,6 @@ void draw_frame() {
     const auto projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
     auto projection_location = glGetUniformLocation(program, "projection"); 
     glUniformMatrix4fv(projection_location, 1, GL_FALSE, glm::value_ptr(projection));
-
-    glBindVertexArray(vao);
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
