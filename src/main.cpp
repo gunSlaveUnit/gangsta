@@ -147,9 +147,9 @@ void process_mouse_input(GLFWwindow* window, double x, double y) {
         mouse.pitch = -89.0;
 
     glm::vec3 front(
-        cos(glm::radians(yaw)) * cos(glm::radians(pitch)),
-        sin(glm::radians(pitch)),
-        sin(glm::radians(yaw)) * cos(glm::radians(pitch))
+        cos(glm::radians(mouse.yaw)) * cos(glm::radians(mouse.pitch)),
+        sin(glm::radians(mouse.pitch)),
+        sin(glm::radians(mouse.yaw)) * cos(glm::radians(mouse.pitch))
     );
 
     camera.front = glm::normalize(front);
@@ -198,6 +198,8 @@ void initiation() {
 
     if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
         std::cerr << "ERROR: failed to initialize GLAD\n";
+
+    glfwSetCursorPosCallback(window, process_mouse_input);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
