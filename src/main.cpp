@@ -73,8 +73,24 @@ struct Camera {
     glm::vec3 up;
 };
 
+struct Mouse {
+    Mouse() {
+        yaw = -90.0;
+        pitch = 0.0;
+
+        position[0] = WINDOW_WIDTH / 2;
+        position[1] = WINDOW_HEIGHT / 2;
+    }
+
+    double yaw;
+    double pitch;
+
+    double position[2];
+}
+
 GLFWwindow *window;
 Camera camera;
+Mouse mouse;
 
 uint_fast32_t vao;
 uint_fast32_t vbo;
